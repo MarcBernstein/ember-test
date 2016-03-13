@@ -1,1 +1,18 @@
 /.vagrant
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# compiled output
+library-app/dist
+library-app/tmp
+
+# dependencies
+library-app/node_modules
+library-app/bower_components
+
+# misc
+library-app/.sass-cache
+library-app/connect.lock
+library-app/coverage/*
+library-app/libpeerconnection.log
+npm-debug.log
+testem.log
