@@ -15,7 +15,7 @@ $rootScript = <<SCRIPT
   sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
   echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.2 multiverse" > /etc/apt/sources.list.d/mongodb-org-3.2.list
   apt-get update
-  apt-get install -y vim git-core curl build-essential automake autoconf python-dev nginx mongodb-org nfs-common portmap
+  apt-get install -y vim git-core curl build-essential automake autoconf python-dev nginx mongodb-org nfs-common portmap git-extras
 
   service start nginx
 
@@ -38,6 +38,7 @@ $userScript = <<SCRIPT
   nvm install 5.8.0
   nvm alias default 5.8.0
   npm install -g bower ember-cli phantomjs
+  cat ~/.bashrc_copy >> ~/.bashrc
 SCRIPT
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
@@ -87,6 +88,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision "shell", inline: $userScript, privileged: false
 
   config.vm.provision "file", source: ".gitconfig", destination: "~/.gitconfig"
+  config.vm.provision "file", source: ".bashrc_copy", destination: "~/.bashrc_copy"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
