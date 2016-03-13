@@ -56,6 +56,7 @@ Vagrant.configure(2) do |config|
   # Forwarding default ports for ember server and livereload
   config.vm.network :forwarded_port, guest: 4200, host: 4200, auto_correct: true
   config.vm.network :forwarded_port, guest: 35729, host: 35729, auto_correct: true
+  config.vm.network :forwarded_port, guest: 49152, host: 49152, auto_correct: true
 
   config.ssh.forward_agent = true
 
@@ -71,7 +72,7 @@ Vagrant.configure(2) do |config|
 
     # Allow the creation of symlinks for nvm
     # http://blog.liip.ch/archive/2012/07/25/vagrant-and-node-js-quick-tip.html
-    vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/vagrant","1"]                  
+    vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/vagrant","1"]
   end
 
   config.vm.provider "parallels" do |prl|
@@ -148,4 +149,3 @@ Vagrant.configure(2) do |config|
   #   sudo apt-get install -y apache2
   # SHELL
 end
-
