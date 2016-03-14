@@ -40,6 +40,7 @@ $userScript = <<SCRIPT
   npm install -g bower ember-cli phantomjs
   cat ~/.bashrc_copy >> ~/.bashrc
   ln -s /vagrant ~/vagrant
+  cd /vagrant/library-app && npm install && bower install
 SCRIPT
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
