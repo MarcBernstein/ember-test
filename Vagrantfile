@@ -37,10 +37,11 @@ $userScript = <<SCRIPT
   [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
   nvm install 5.8.0
   nvm alias default 5.8.0
-  npm install -g bower ember-cli phantomjs
-  cat ~/.bashrc_copy >> ~/.bashrc
+  npm install -g bower ember-cli phantomjs-prebuilt
+  cd ~ && cat ~/.bashrc_copy >> ~/.bashrc
   ln -s /vagrant ~/vagrant
-  cd /vagrant/library-app && npm install && bower install
+  cd /vagrant/library-app && npm install
+  cd /vagrant/library-app bower install
 SCRIPT
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
