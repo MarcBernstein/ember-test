@@ -1,8 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-box      = 'ubuntu/trusty64'
-hostname = 'emberclibox'
+box      = 'boxcutter/ubuntu1404'
+hostname = 'ember-test'
 #domain   = 'example.com'
 #ip       = '192.168.42.42'
 ram      = '2048'
@@ -11,22 +11,24 @@ $rootScript = <<SCRIPT
   echo "I am provisioning..."
   echo doing it as $USER
   cd /home/vagrant
+  apt-get update
+  apt-get install -y software-properties-common
   add-apt-repository ppa:git-core/ppa
   sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
   echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.2 multiverse" > /etc/apt/sources.list.d/mongodb-org-3.2.list
   apt-get update
   apt-get install -y vim git-core curl build-essential automake autoconf python-dev nginx mongodb-org nfs-common portmap git-extras
 
-  service start nginx
+  #service start nginx
 
-  git clone https://github.com/facebook/watchman.git /opt/watchman;
-    ( cd /opt/watchman;
-      git checkout v3.9.0;
-      ./autogen.sh;
-      ./configure;
-      make;
-      make install;
-    );
+  #git clone https://github.com/facebook/watchman.git /opt/watchman;
+  #  ( cd /opt/watchman;
+  #    git checkout v3.9.0;
+  #    ./autogen.sh;
+  #    ./configure;
+  #    make;
+  #    make install;
+  #  );
 
 SCRIPT
 
@@ -42,8 +44,9 @@ $userScript = <<SCRIPT
   #if [ ! -d ~/vagrant ]; then
     #ln -s /vagrant ~/vagrant
   #fi
-  cd /vagrant/library-app && npm install
-  cd /vagrant/library-app && bower install
+  cd /vagrant/library-app
+  npm install
+  bower install
 SCRIPT
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
@@ -73,27 +76,13 @@ Vagrant.configure(2) do |config|
   # https://github.com/SocialGeeks/vagrant-openstack/commit/d3ea0695e64ea2e905a67c1b7e12d794a1a29b97
   config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
 
-  config.vm.provider "virtualbox" do |vb|
-    vb.customize  [ "modifyvm", :id, "--memory", ram ]
 
-    # Allow the creation of symlinks for nvm
-    # http://blog.liip.ch/archive/2012/07/25/vagrant-and-node-js-quick-tip.html
-    vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/vagrant","1"]
-  end
-
-  config.vm.provider "parallels" do |prl|
-    prl.linked_clone = true
-    prl.update_guest_tools = true
-    prl.memory = ram
-    prl.cpus = 4
-  end
+  config.vm.provision "file", source: ".gitconfig", destination: "~/.gitconfig"
+  config.vm.provision "file", source: ".bashrc_copy", destination: "~/.bashrc_copy"
 
   # Shell provisioning.
   config.vm.provision "shell", inline: $rootScript
   config.vm.provision "shell", inline: $userScript, privileged: false
-
-  config.vm.provision "file", source: ".gitconfig", destination: "~/.gitconfig"
-  config.vm.provision "file", source: ".bashrc_copy", destination: "~/.bashrc_copy"
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
@@ -109,7 +98,7 @@ Vagrant.configure(2) do |config|
   # using a specific IP.
   # config.vm.network "private_network", ip: "192.168.33.10"
   config.vm.network :private_network, ip: "192.168.33.3"
-  config.vm.hostname = "ember-test"
+  config.vm.hostname = hostname
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -124,35 +113,21 @@ Vagrant.configure(2) do |config|
   config.vm.synced_folder ".", "/vagrant", type: "nfs", group: nil, owner: nil, mount_options: ['rw', 'vers=3', 'tcp', 'fsc' ,'actimeo=2']
   config.nfs.map_uid = Process.uid
   config.nfs.map_gid = Process.gid
-  #config.vm.synced_folder ".", "/vagrant", :nfs => true
 
-  # Provider-specific configuration so you can fine-tune various
-  # backing providers for Vagrant. These expose provider-specific options.
-  # Example for VirtualBox:
-  #
-  # config.vm.provider "virtualbox" do |vb|
-  #   # Display the VirtualBox GUI when booting the machine
-  #   vb.gui = true
-  #
-  #   # Customize the amount of memory on the VM:
-  #   vb.memory = "1024"
-  # end
-  #
-  # View the documentation for the provider you are using for more
-  # information on available options.
+  config.vm.provider "virtualbox" do |vb|
+    vb.customize  [ "modifyvm", :id, "--memory", ram ]
 
-  # Define a Vagrant Push strategy for pushing to Atlas. Other push strategies
-  # such as FTP and Heroku are also available. See the documentation at
-  # https://docs.vagrantup.com/v2/push/atlas.html for more information.
-  # config.push.define "atlas" do |push|
-  #   push.app = "YOUR_ATLAS_USERNAME/YOUR_APPLICATION_NAME"
-  # end
+    # Allow the creation of symlinks for nvm
+    # http://blog.liip.ch/archive/2012/07/25/vagrant-and-node-js-quick-tip.html
+    vb.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate/vagrant","1"]
+  end
 
-  # Enable provisioning with a shell script. Additional provisioners such as
-  # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
-  # documentation for more information about their specific syntax and use.
-  # config.vm.provision "shell", inline: <<-SHELL
-  #   sudo apt-get update
-  #   sudo apt-get install -y apache2
-  # SHELL
+  config.vm.provider "parallels" do |prl|
+    prl.linked_clone = true
+    prl.check_guest_tools = true
+    prl.update_guest_tools = true
+    prl.memory = ram
+    prl.cpus = 4
+    prl.name = hostname
+  end
 end
